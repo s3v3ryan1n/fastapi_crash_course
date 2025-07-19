@@ -1,7 +1,5 @@
 FROM python:3.13.4
 
-WORKDIR /app
-
 COPY . .
 
 # Устанавливаем зависимости
@@ -11,4 +9,4 @@ RUN pip install  -r requirements.txt
 
 
 # Исправленная команда запуска (без лишнего флага)
-CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]

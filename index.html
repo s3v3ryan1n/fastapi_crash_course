@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список книг</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .book-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .book-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .book-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 8px;
+        }
+        
+        .book-author {
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Список книг</h1>
+    <div id="app">
+        <div class="loading">Загрузка списка книг...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const app = document.getElementById('app');
+            
+            try {
+                // Запрос к бэкенду
+                const response = await fetch('http://localhost:8000/books');
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                
+                const books = await response.json();
+                
+                // Проверка наличия книг
+                if (!books || books.length === 0) {
+                    app.innerHTML = '<div class="error">Книги не найдены</div>';
+                    return;
+                }
+                
+                // Генерация списка книг
+                const booksHtml = `
+                    <div class="book-list">
+                        ${books.map(book => `
+                            <div class="book-card">
+                                <div class="book-title">${book.title}</div>
+                                <div class="book-author">${book.author}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                app.innerHTML = booksHtml;
+                
+            } catch (error) {
+                // Обработка ошибок
+                console.error('Ошибка при получении книг:', error);
+                app.innerHTML = `
+                    <div class="error">
+                        Ошибка при загрузке данных: ${error.message}<br>
+                        Убедитесь, что бэкенд запущен на порту 8000
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
